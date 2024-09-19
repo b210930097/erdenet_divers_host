@@ -12,14 +12,12 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth'
-import { auth } from '../config/firebase'
+import { auth, logUserEvent } from '../config/firebase'
 
-interface Props {
-  open: boolean
-  onClose: () => void
-}
-
-export const LoginModal: React.FC<Props> = ({ open, onClose }) => {
+export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
+  open,
+  onClose,
+}) => {
   const [isSignUp, setIsSignUp] = useState<boolean>(false)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -30,14 +28,23 @@ export const LoginModal: React.FC<Props> = ({ open, onClose }) => {
     setLoading(true)
     setError('')
     try {
+      let userCredential
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password)
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        )
+        await logUserEvent(userCredential.user.uid, email, 'signUp')
       } else {
-        await signInWithEmailAndPassword(auth, email, password)
+        userCredential = await signInWithEmailAndPassword(auth, email, password)
+        await logUserEvent(userCredential.user.uid, email, 'login')
       }
       onClose()
     } catch (error) {
-      setError('Error: ' + error)
+      setError(
+        'Error: ' + (error instanceof Error ? error.message : 'Unknown error'),
+      )
     } finally {
       setLoading(false)
     }
@@ -87,7 +94,7 @@ export const LoginModal: React.FC<Props> = ({ open, onClose }) => {
           {loading
             ? isSignUp
               ? 'Signing up...'
-              : 'Login...'
+              : 'Logging in...'
             : isSignUp
               ? 'Sign Up'
               : 'Login'}

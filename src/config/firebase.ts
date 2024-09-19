@@ -4,6 +4,18 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth'
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  onSnapshot,
+  doc,
+  setDoc,
+} from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDOACmuAO5NKLWFv0VAd97MjLogwzLsSvQ',
@@ -16,5 +28,39 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
+const db = getFirestore(app)
 
-export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+export {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  db,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  onSnapshot,
+  doc,
+  setDoc,
+}
+
+export const logUserEvent = async (
+  userId: string,
+  email: string,
+  event: 'signUp' | 'login',
+) => {
+  try {
+    const timestamp = new Date().toISOString()
+    const docId = `${userId}_${timestamp}`
+    await setDoc(doc(db, 'userEvents', docId), {
+      userId,
+      email,
+      event,
+      timestamp,
+    })
+  } catch (error) {
+    console.error('Error logging user event:', error)
+  }
+}

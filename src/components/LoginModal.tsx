@@ -35,15 +35,18 @@ export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
           email,
           password,
         )
-        await logUserEvent(userCredential.user.uid, email, 'signUp')
+        await logUserEvent(userCredential.user.uid, email, 'Бүртгүүлсэн')
       } else {
         userCredential = await signInWithEmailAndPassword(auth, email, password)
-        await logUserEvent(userCredential.user.uid, email, 'login')
+        await logUserEvent(userCredential.user.uid, email, 'Нэвтэрсэн')
       }
-      onClose()
+      handleClose()
     } catch (error) {
       setError(
-        'Error: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        'Алдаа гарлаа: ' +
+          (error instanceof Error
+            ? 'Э-мэйл хаяг эсвэл нууц үг буруу байна.'
+            : 'Дахин оролдоно уу'),
       )
     } finally {
       setLoading(false)
@@ -57,12 +60,19 @@ export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
     setError('')
   }
 
+  const handleClose = () => {
+    setEmail('')
+    setPassword('')
+    setError('')
+    onClose()
+  }
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{isSignUp ? 'Sign Up' : 'Login'}</DialogTitle>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>{isSignUp ? 'Бүртгүүлэх' : 'Нэвтрэх'}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Email"
+          label="Э-мэйл хаяг"
           type="email"
           fullWidth
           margin="normal"
@@ -70,7 +80,7 @@ export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
           onChange={(e) => setEmail(e.target.value)}
         />
         <TextField
-          label="Password"
+          label="Нууц үг"
           type="password"
           fullWidth
           margin="normal"
@@ -81,9 +91,7 @@ export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={handleSwitchMode} color="primary">
-          {isSignUp
-            ? 'Already have an account? Login'
-            : 'Create an account? Sign Up'}
+          {isSignUp ? 'Надад бүртгэл байгаа' : 'Бүртгэл үүсгэх?'}
         </Button>
         <Button
           onClick={handleSubmit}
@@ -93,14 +101,14 @@ export const LoginModal: React.FC<{ open: boolean; onClose: () => void }> = ({
         >
           {loading
             ? isSignUp
-              ? 'Signing up...'
-              : 'Logging in...'
+              ? 'Бүртгүүлэх...'
+              : 'Нэвтрэх...'
             : isSignUp
-              ? 'Sign Up'
-              : 'Login'}
+              ? 'Бүртгүүлэх'
+              : 'Нэвтрэх'}
         </Button>
-        <Button onClick={onClose} color="primary">
-          Cancel
+        <Button onClick={handleClose} color="primary">
+          {'Буцах'}
         </Button>
       </DialogActions>
     </Dialog>

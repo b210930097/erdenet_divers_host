@@ -32,7 +32,6 @@ const difficultyToYValue = (difficulty: string) => {
   }
 }
 
-// Mapping keys to difficulty values
 const keyToDifficulty = (key: string) => {
   switch (key) {
     case '1':

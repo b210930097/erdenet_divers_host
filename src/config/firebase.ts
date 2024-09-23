@@ -49,12 +49,12 @@ export {
 export const logUserEvent = async (
   userId: string,
   email: string,
-  event: 'signUp' | 'login',
+  event: 'Бүртгүүлсэн' | 'Нэвтэрсэн',
 ) => {
   try {
     const timestamp = new Date().toISOString()
     const docId = `${userId}_${timestamp}`
-    await setDoc(doc(db, 'userEvents', docId), {
+    await setDoc(doc(db, 'userInfo', docId), {
       userId,
       email,
       event,

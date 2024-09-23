@@ -7,13 +7,10 @@ export const Sidebar: React.FC = () => {
     <div style={{ width: '250px', background: '#f4f4f4', height: '100vh' }}>
       <List component="nav">
         <ListItem component={Link} to="/">
-          <ListItemText primary="Dashboard" />
-        </ListItem>
-        <ListItem component={Link} to="/users">
-          <ListItemText primary="Users" />
+          <ListItemText primary="Хэрэглэгч" />
         </ListItem>
         <ListItem component={Link} to="/settings">
-          <ListItemText primary="Settings" />
+          <ListItemText primary="Тохиргоо" />
         </ListItem>
       </List>
     </div>

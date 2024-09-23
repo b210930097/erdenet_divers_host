@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const Navbar: React.FC<Props> = ({ title, onMenuClick }) => {
-  const [isLoginModalOpen, setLoginModalOpen] = useState<boolean>(false)
+  const [modal, setModal] = useState<boolean>(false)
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
@@ -21,15 +21,15 @@ export const Navbar: React.FC<Props> = ({ title, onMenuClick }) => {
     return () => unsubscribe()
   }, [])
 
-  const handleLoginClick = () => {
-    setLoginModalOpen(true)
+  const onPress = () => {
+    setModal(true)
   }
 
-  const handleCloseLoginModal = () => {
-    setLoginModalOpen(false)
+  const onClose = () => {
+    setModal(false)
   }
 
-  const handleLogout = async () => {
+  const onLogOut = async () => {
     try {
       await signOut(auth)
     } catch (error) {
@@ -58,18 +58,18 @@ export const Navbar: React.FC<Props> = ({ title, onMenuClick }) => {
               <Typography variant="body1" sx={{ mr: 2 }}>
                 {user.email}
               </Typography>
-              <Button color="inherit" onClick={handleLogout}>
-                Log Out
+              <Button color="inherit" onClick={onLogOut}>
+                {'Гарах'}
               </Button>
             </>
           ) : (
-            <Button color="inherit" onClick={handleLoginClick}>
-              Login
+            <Button color="inherit" onClick={onPress}>
+              {'Нэвтрэх'}
             </Button>
           )}
         </Toolbar>
       </AppBar>
-      <LoginModal open={isLoginModalOpen} onClose={handleCloseLoginModal} />
+      <LoginModal open={modal} onClose={onClose} />
     </>
   )
 }

@@ -12,6 +12,9 @@ export const Sidebar: React.FC = () => {
         <ListItem component={Link} to="/settings">
           <ListItemText primary="Тохиргоо" />
         </ListItem>
+        <ListItem component={Link} to="/charts">
+          <ListItemText primary="Хяналтын самбар" />
+        </ListItem>
       </List>
     </div>
   )

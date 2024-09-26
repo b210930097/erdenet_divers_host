@@ -18,7 +18,7 @@ const App: React.FC = () => {
           <Navbar title="Жолоочийн туслах" onMenuClick={handleMenuClick} />
           <Routes>
             <Route path="/" element={<Users />} />
-            <Route path="/graphic/:email" element={<Graphic />} />
+            <Route path="/charts" element={<Graphic />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import React from 'react'
 import {
   LineChart,
   Line,
@@ -8,109 +7,119 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
   ResponsiveContainer,
 } from 'recharts'
+import {
+  driverStateData,
+  fatigueData,
+  sleepData,
+  totalDriversData,
+} from '../constants/mockdata'
 
-const initialData = [
-  { date: '2024-09-01', difficulty: 'Distraction' },
-  { date: '2024-09-02', difficulty: 'Awake' },
-  { date: '2024-09-03', difficulty: 'Drowsy' },
-  { date: '2024-09-04', difficulty: 'Awake' },
-  { date: '2024-09-05', difficulty: 'Distraction' },
-]
-
-const difficultyToYValue = (difficulty: string) => {
-  switch (difficulty) {
-    case 'Distraction':
-      return 1
-    case 'Awake':
-      return 2
-    case 'Drowsy':
-      return 3
-    default:
-      return 0
-  }
-}
-
-const keyToDifficulty = (key: string) => {
-  switch (key) {
-    case '1':
-      return 'Distraction'
-    case '2':
-      return 'Awake'
-    case '3':
-      return 'Drowsy'
-    default:
-      return null
-  }
-}
-
-const getCurrentFormattedDate = () => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28']
 
 export const Graphic: React.FC = () => {
-  const { email } = useParams<{ email: string }>()
-
-  const [data, setData] = useState(initialData)
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      const difficulty = keyToDifficulty(event.key)
-      if (difficulty) {
-        const newEntry = {
-          date: getCurrentFormattedDate(),
-          difficulty,
-        }
-        setData((prevData) => [...prevData, newEntry])
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress)
-    }
-  }, [])
-
-  const transformedData = data.map((item) => ({
-    ...item,
-    difficulty: difficultyToYValue(item.difficulty),
-  }))
-
   return (
-    <div style={{ padding: '20px' }}>
-      <p>Жолооч: {email}</p>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={transformedData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis
-            domain={[1, 3]}
-            tickFormatter={(value) => {
-              switch (value) {
-                case 1:
-                  return 'Distraction'
-                case 2:
-                  return 'Awake'
-                case 3:
-                  return 'Drowsy'
-                default:
-                  return ''
-              }
-            }}
-          />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="difficulty" stroke="#8884d8" />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className="flex flex-col gap-4 p-5 bg-blue-100">
+      <div className="flex gap-4 h-[400px]">
+        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
+          <span className=" font-medium"> Жолоочийн төлөв / цагаар</span>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={driverStateData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" />
+              <YAxis domain={[0, 100]} tickFormatter={(tick) => `${tick}%`} />
+              <Tooltip formatter={(value) => `${value}%`} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey={(d) => (d.awake / d.total) * 100}
+                stroke="#8884d8"
+                name="Сэрүүн"
+              />
+              <Line
+                type="monotone"
+                dataKey={(d) => (d.drowsy / d.total) * 100}
+                stroke="#33d6ff"
+                name="Нойрмог"
+              />
+              <Line
+                type="monotone"
+                dataKey={(d) => (d.distract / d.total) * 100}
+                stroke="#ff7300"
+                name="Анхаарал сарнисан"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="w-1/2 rounded-xl p-4 bg-white flex flex-col">
+          <span className="font-medium"> Жолоочдын дундаж мэдээлэл</span>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={totalDriversData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                label
+              >
+                {totalDriversData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip />
+              <Legend layout="vertical" verticalAlign="middle" align="right" />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <div className="flex gap-4 h-[400px]">
+        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
+          <span className="font-medium">
+            Сүүлийн 48 цагт жолоочийн унтсан цаг
+          </span>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={sleepData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="driver" />
+              <YAxis />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="hoursSlept"
+                stroke="#82ca9d"
+                fill="#82ca9d"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
+          <span className=" font-medium">Жолоочийн ядралтын түвшин (1-10)</span>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={fatigueData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="fatigue" fill="#8e66fa" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   )
 }

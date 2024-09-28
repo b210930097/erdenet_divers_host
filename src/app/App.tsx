@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { Settings, Users, Graphic } from '../pages'
+import { Settings, Users, Graphic, Dashboard } from '../pages'
 import { Navbar, Sidebar } from '../components'
 
 const App: React.FC = () => {

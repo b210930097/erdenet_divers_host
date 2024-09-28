@@ -17,7 +17,6 @@ import {
   setDoc,
   where,
 } from 'firebase/firestore'
-import internal from 'stream'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDOACmuAO5NKLWFv0VAd97MjLogwzLsSvQ',

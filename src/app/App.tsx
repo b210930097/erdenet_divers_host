@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { Settings, Users, Graphic, Dashboard } from '../pages'
+import { Settings, Users, Graphic } from '../pages'
 import { Navbar, Sidebar } from '../components'
 
 const App: React.FC = () => {
@@ -18,7 +18,6 @@ const App: React.FC = () => {
           <Navbar title="Жолоочийн туслах" onMenuClick={handleMenuClick} />
           <Routes>
             <Route path="/" element={<Users />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/graphic/:email" element={<Graphic />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>

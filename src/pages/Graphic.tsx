@@ -10,79 +10,80 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import {
-  db,
-  onSnapshot,
-  collection,
-  query,
-  orderBy,
-  limit,
-} from '../config/firebase'
-import { format } from 'date-fns'
-import { CircularProgress, Typography } from '@mui/material'
 
-const difficultyToYValue = (className: string) => {
-  switch (className) {
-    case 'Сэрүүн':
-      return 0
-    case 'Зүүрмэглэсэн':
-      return 1
+const initialData = [
+  { date: '2024-09-01', difficulty: 'Distraction' },
+  { date: '2024-09-02', difficulty: 'Awake' },
+  { date: '2024-09-03', difficulty: 'Drowsy' },
+  { date: '2024-09-04', difficulty: 'Awake' },
+  { date: '2024-09-05', difficulty: 'Distraction' },
+]
+
+const difficultyToYValue = (difficulty: string) => {
+  switch (difficulty) {
     case 'Distraction':
+      return 1
+    case 'Awake':
       return 2
+    case 'Drowsy':
+      return 3
     default:
       return 0
   }
 }
 
+// Mapping keys to difficulty values
+const keyToDifficulty = (key: string) => {
+  switch (key) {
+    case '1':
+      return 'Distraction'
+    case '2':
+      return 'Awake'
+    case '3':
+      return 'Drowsy'
+    default:
+      return null
+  }
+}
+
+const getCurrentFormattedDate = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
 export const Graphic: React.FC = () => {
   const { email } = useParams<{ email: string }>()
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const [data, setData] = useState(initialData)
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'detections'),
-      orderBy('timestamp', 'desc'),
-      limit(10),
-    )
+    const handleKeyPress = (event: KeyboardEvent) => {
+      const difficulty = keyToDifficulty(event.key)
+      if (difficulty) {
+        const newEntry = {
+          date: getCurrentFormattedDate(),
+          difficulty,
+        }
+        setData((prevData) => [...prevData, newEntry])
+      }
+    }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedData = snapshot.docs
-        .map((doc) => {
-          const { className, timestamp, userEmail } = doc.data()
-          return {
-            timestamp,
-            className,
-            userEmail,
-          }
-        })
-        .filter((item) => item.userEmail === email)
-
-      setData(fetchedData.reverse())
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
-  }, [email])
+    window.addEventListener('keydown', handleKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [])
 
   const transformedData = data.map((item) => ({
     ...item,
-    className: difficultyToYValue(item.className),
-    timestamp: format(new Date(item.timestamp), 'yyyy-MM-dd HH:mm:ss'),
+    difficulty: difficultyToYValue(item.difficulty),
   }))
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '20px' }}>
-        <CircularProgress />
-        <Typography>Уншиж байна...</Typography>
-      </div>
-    )
-  }
-
-  if (transformedData.length === 0) {
-    return <p>Хоосон байна</p>
-  }
 
   return (
     <div style={{ padding: '20px' }}>
@@ -90,17 +91,17 @@ export const Graphic: React.FC = () => {
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={transformedData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="date" />
           <YAxis
-            domain={[0, 2]}
+            domain={[1, 3]}
             tickFormatter={(value) => {
               switch (value) {
-                case 0:
-                  return 'Сэрүүн'
                 case 1:
-                  return 'Зүүрмэглэсэн'
+                  return 'Distraction'
                 case 2:
-                  return 'Сатаарсан'
+                  return 'Awake'
+                case 3:
+                  return 'Drowsy'
                 default:
                   return ''
               }
@@ -108,12 +109,7 @@ export const Graphic: React.FC = () => {
           />
           <Tooltip />
           <Legend />
-          <Line
-            type="monotone"
-            dataKey="className"
-            name="Төлөв"
-            stroke="#8884d8"
-          />
+          <Line type="monotone" dataKey="difficulty" stroke="#8884d8" />
         </LineChart>
       </ResponsiveContainer>
     </div>

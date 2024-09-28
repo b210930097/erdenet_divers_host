@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   LineChart,
   Line,
@@ -7,119 +8,114 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
   ResponsiveContainer,
 } from 'recharts'
 import {
-  driverStateData,
-  fatigueData,
-  sleepData,
-  totalDriversData,
-} from '../constants/mockdata'
+  db,
+  onSnapshot,
+  collection,
+  query,
+  orderBy,
+  limit,
+} from '../config/firebase'
+import { format } from 'date-fns'
+import { CircularProgress, Typography } from '@mui/material'
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28']
+const difficultyToYValue = (className: string) => {
+  switch (className) {
+    case 'Сэрүүн':
+      return 0
+    case 'Зүүрмэглэсэн':
+      return 1
+    case 'Distraction':
+      return 2
+    default:
+      return 0
+  }
+}
 
 export const Graphic: React.FC = () => {
-  return (
-    <div className="flex flex-col gap-4 p-5 bg-blue-100">
-      <div className="flex gap-4 h-[400px]">
-        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
-          <span className=" font-medium"> Жолоочийн төлөв / цагаар</span>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={driverStateData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis domain={[0, 100]} tickFormatter={(tick) => `${tick}%`} />
-              <Tooltip formatter={(value) => `${value}%`} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey={(d) => (d.awake / d.total) * 100}
-                stroke="#8884d8"
-                name="Сэрүүн"
-              />
-              <Line
-                type="monotone"
-                dataKey={(d) => (d.drowsy / d.total) * 100}
-                stroke="#33d6ff"
-                name="Нойрмог"
-              />
-              <Line
-                type="monotone"
-                dataKey={(d) => (d.distract / d.total) * 100}
-                stroke="#ff7300"
-                name="Анхаарал сарнисан"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="w-1/2 rounded-xl p-4 bg-white flex flex-col">
-          <span className="font-medium"> Жолоочдын дундаж мэдээлэл</span>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={totalDriversData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {totalDriversData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
+  const { email } = useParams<{ email: string }>()
+  const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-              <Tooltip />
-              <Legend layout="vertical" verticalAlign="middle" align="right" />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+  useEffect(() => {
+    const q = query(
+      collection(db, 'detections'),
+      orderBy('timestamp', 'desc'),
+      limit(10),
+    )
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedData = snapshot.docs
+        .map((doc) => {
+          const { className, timestamp, userEmail } = doc.data()
+          return {
+            timestamp,
+            className,
+            userEmail,
+          }
+        })
+        .filter((item) => item.userEmail === email)
+
+      setData(fetchedData.reverse())
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [email])
+
+  const transformedData = data.map((item) => ({
+    ...item,
+    className: difficultyToYValue(item.className),
+    timestamp: format(new Date(item.timestamp), 'yyyy-MM-dd HH:mm:ss'),
+  }))
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '20px' }}>
+        <CircularProgress />
+        <Typography>Уншиж байна...</Typography>
       </div>
-      <div className="flex gap-4 h-[400px]">
-        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
-          <span className="font-medium">
-            Сүүлийн 48 цагт жолоочийн унтсан цаг
-          </span>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={sleepData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="driver" />
-              <YAxis />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="hoursSlept"
-                stroke="#82ca9d"
-                fill="#82ca9d"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex flex-col w-1/2 rounded-xl p-4 bg-white">
-          <span className=" font-medium">Жолоочийн ядралтын түвшин (1-10)</span>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={fatigueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="fatigue" fill="#8e66fa" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+    )
+  }
+
+  if (transformedData.length === 0) {
+    return <p>Хоосон байна</p>
+  }
+
+  return (
+    <div style={{ padding: '20px' }}>
+      <p>Жолооч: {email}</p>
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart data={transformedData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="timestamp" />
+          <YAxis
+            domain={[0, 2]}
+            tickFormatter={(value) => {
+              switch (value) {
+                case 0:
+                  return 'Сэрүүн'
+                case 1:
+                  return 'Зүүрмэглэсэн'
+                case 2:
+                  return 'Сатаарсан'
+                default:
+                  return ''
+              }
+            }}
+          />
+          <Tooltip />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey="className"
+            name="Төлөв"
+            stroke="#8884d8"
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   )
 }

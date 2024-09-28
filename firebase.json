@@ -1,7 +1,6 @@
 {
   "hosting": {
-    "site": "erdenet-divers",
-    "public": "build",
+    "public": "public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   }
 }

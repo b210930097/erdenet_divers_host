@@ -15,7 +15,9 @@ import {
   onSnapshot,
   doc,
   setDoc,
+  where,
 } from 'firebase/firestore'
+import internal from 'stream'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDOACmuAO5NKLWFv0VAd97MjLogwzLsSvQ',
@@ -44,6 +46,7 @@ export {
   onSnapshot,
   doc,
   setDoc,
+  where,
 }
 
 export const logUserEvent = async (
@@ -62,5 +65,24 @@ export const logUserEvent = async (
     })
   } catch (error) {
     console.error('Error logging user event:', error)
+  }
+}
+
+export const logDestructionData = async (
+  classIndex: number,
+  className: string,
+  timestamp: string,
+  userEmail: string,
+) => {
+  try {
+    const docId = `${userEmail}_${timestamp}`
+    await setDoc(doc(db, 'detections', docId), {
+      classIndex,
+      className,
+      userEmail,
+      timestamp,
+    })
+  } catch (error) {
+    console.error('Error logging destruction data:', error)
   }
 }

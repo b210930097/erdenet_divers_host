@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "erdenet-divers"
-  }
+    "default": "erdenet-divers",
+    "n": "erdenet-divers"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

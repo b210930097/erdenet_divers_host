@@ -115,7 +115,8 @@ export const Users: React.FC = () => {
                 }}
                 onClick={() => handleItemClick(email)}
               >
-                <Typography variant="h6">{`Э-мэйл: ${email}`}</Typography>
+                <Typography variant="h6">{`Э-мэйл:`}</Typography>
+                <Typography variant="h6">{email}</Typography>
                 <Typography>{`Төрөл: ${event.event}`}</Typography>
                 <Typography>{`Хугацаа: ${format(event.timestamp, 'yyyy.MM.dd HH:mm')}`}</Typography>
               </Paper>

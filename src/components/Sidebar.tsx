@@ -12,7 +12,7 @@ export const Sidebar: React.FC = () => {
         <ListItem component={Link} to="/settings">
           <ListItemText primary="Тохиргоо" />
         </ListItem>
-        <ListItem component={Link} to="/charts">
+        <ListItem component={Link} to="/dashboard">
           <ListItemText primary="Хяналтын самбар" />
         </ListItem>
       </List>

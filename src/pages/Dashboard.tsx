@@ -65,13 +65,13 @@ export const Dashboard: React.FC = () => {
                 type="monotone"
                 dataKey={(d) => (d.drowsy / d.total) * 100}
                 stroke="#33d6ff"
-                name="Нойрмог"
+                name="Зүүрмэглэсэн"
               />
               <Line
                 type="monotone"
                 dataKey={(d) => (d.distract / d.total) * 100}
                 stroke="#ff7300"
-                name="Анхаарал сарнисан"
+                name="Сатаарсан"
               />
             </LineChart>
           </ResponsiveContainer>

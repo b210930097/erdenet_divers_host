@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area,
 } from 'recharts'
 import {
   db,
@@ -23,11 +23,11 @@ import { CircularProgress, Typography } from '@mui/material'
 
 const difficultyToYValue = (className: string) => {
   switch (className) {
-    case 'Сэрүүн':
+    case 'Сатаарсан':
       return 0
-    case 'Зүүрмэглэсэн':
+    case 'Сэрүүн':
       return 1
-    case 'Distraction':
+    case 'Зүүрмэглэсэн':
       return 2
     default:
       return 0
@@ -85,36 +85,51 @@ export const Graphic: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ flex: 1, height: '80vh', padding: 20 }}>
       <p>Жолооч: {email}</p>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={transformedData}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={transformedData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
+          <XAxis padding={{ left: 90 }} dataKey="timestamp" />
           <YAxis
+            padding={{ top: 10 }}
             domain={[0, 2]}
-            tickFormatter={(value) => {
-              switch (value) {
+            tick={({ x, y, payload }) => {
+              let label
+              switch (payload.value) {
                 case 0:
-                  return 'Сэрүүн'
+                  label = 'Сатаарсан'
+                  break
                 case 1:
-                  return 'Зүүрмэглэсэн'
+                  label = 'Сэрүүн'
+                  break
                 case 2:
-                  return 'Сатаарсан'
+                  label = 'Зүүрмэглэсэн'
+                  break
                 default:
-                  return ''
+                  label = ''
               }
+
+              return (
+                <g transform={`translate(${x + 10},${y})`}>
+                  <text x={0} y={0} dy={4} textAnchor="center" fill="#666">
+                    {label}
+                  </text>
+                </g>
+              )
             }}
           />
+
           <Tooltip />
           <Legend />
-          <Line
+          <Area
             type="monotone"
             dataKey="className"
             name="Төлөв"
-            stroke="#8884d8"
+            stroke="#82ca9d"
+            fill="#82ca9d"
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )

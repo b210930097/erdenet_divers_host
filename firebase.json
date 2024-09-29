@@ -1,11 +1,7 @@
 {
   "hosting": {
-<<<<<<< HEAD
-    "public": "build",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
-=======
     "site": "erdenet-divers",
-    "public": "public",
+    "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
@@ -13,6 +9,5 @@
         "destination": "/index.html"
       }
     ]
->>>>>>> f43b3ab (last)
   }
 }

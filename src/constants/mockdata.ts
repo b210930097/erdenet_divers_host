@@ -10,8 +10,8 @@ export const driverStateData = [
 
 export const totalDriversData = [
   { name: 'Сэрүүн', value: 45 },
-  { name: 'Нойрмог', value: 15 },
-  { name: 'Анхаарал сарнисан', value: 20 },
+  { name: 'Зүүрмэглэсэн', value: 15 },
+  { name: 'Сатаарсан', value: 20 },
 ]
 
 export const sleepData = [
